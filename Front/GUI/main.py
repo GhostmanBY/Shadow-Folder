@@ -13,40 +13,69 @@ from PySide6.QtCore import Qt, QDir, QSize, Signal, QModelIndex
 
 class Milist_View(QListView):
     exe_accion_sig = Signal(QModelIndex)
-    copy_accion_sig = Signal(str, str, str)
+    copy_accion_sig = Signal(str)
 
-    def __init__(self, path, copy_full_path, copy_cut_path):
+    def __init__(self):
         super().__init__()
-        self.path = path
-        self.copy_full_path = copy_full_path
-        self.copy_cut_path = copy_cut_path
+        """
+        Esta clase puede ser inicializada varias veces debido a la sobreescritura de QListView.
+        Para evitar que las variables de instancia se reinicialicen en cada llamada al constructor,
+        se utiliza hasattr para comprobar si ya existen antes de inicializarlas.
+        """
+        if not hasattr(self, 'ya'):
+            self.path = ''
+            self.copy_full_path = ''
+            self.copy_cut_path = ''
+            self.ya = True
+
     def keyPressEvent(self, event: QKeyEvent):
+        """
+            Modificacion del metodo de KeyPressEvent para que haga las funciones de copiar, cortar, pegar y abrir/ejecutar archivos
+            1. Enter: abrir/ejecutar
+            2. Ctrl+C: Copiar
+            3. Ctrl+X: Cortar
+            4. Ctrl+V: Pegar     
+        """
+        #1: abrir/ejecutar
         if event.key() == Qt.Key.Key_Return:
             self.exe_accion_sig.emit(self.currentIndex())
-        elif event.key() == Qt.Key.Key_C and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            try:
-                index = self.currentIndex().data()
-                print(f"Path1: {index}")
-                self.copy_full_path = f"{self.path + "/" + index}"
-                self.copy_cut_path = self.path
-                self.copy_accion_sig.emit(f"{self.path} a {self.copy_cut_path} a {self.copy_full_path}", self.copy_full_path, self.copy_cut_path)
-            except Exception as e:
-                print(f"Error: {e}")
-                self.copy_accion_sig.emit(f"No se puedo copiar el archivo {index}", self.copy_full_path, self.copy_cut_path)
+        
+        #2: Copiar
+        if event.key() == Qt.Key.Key_C and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            self.cut_copy = False 
 
-        elif event.key() == Qt.Key.Key_V and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+        #2: Cortar
+        elif event.key() == Qt.Key.Key_X and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            self.cut_copy = True 
+        
+        #Extra: Como la logia de copiar y pegar es lo mismo se reutiliza el codigo manejado con la condicion de boleanos
+        #Ex: Se utilizan condificonales ternarios para modificar los valores por su retoriedad
+        if hasattr(self, 'cut_copy'):
             try:
+                index = self.currentIndex().data() 
+                self.copy_full_path = f"{self.path + "/" + index}" 
+                self.copy_cut_path = self.path 
+                mode = "copio" if self.cut_copy == False else "corto" 
+                self.copy_accion_sig.emit(f"El archivo {index} se {mode}") 
+            except Exception as e:
+                print(f"Error: {e}") 
+                mode = "copio" if self.cut_copy == False else "corto" 
+                self.copy_accion_sig.emit(f"No se puedo {mode} el archivo {index}") 
+        
+        #4: Pegar
+        if event.key() == Qt.Key.Key_V and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            try:
+                #Ex: Se mantienen los condicionale ternarios por los cambios del boleano retorico
                 if self.path != self.copy_cut_path and self.copy_cut_path != '':
-                    shutil.copy(self.copy_full_path, self.path)
+                    shutil.copy(self.copy_full_path, self.path) if self.cut_copy == False else shutil.move(self.copy_full_path, self.path)
+                    mode = "copio" if self.cut_copy == False else "corto"
+                    self.copy_accion_sig.emit(f"Su archivo se {mode} de {self.copy_cut_path} a {self.path} correctamente") 
+                    #Se limpian las variables de rutas guardadas
                     self.copy_full_path = ''
                     self.copy_cut_path = ''
-                    self.copy_accion_sig.emit(f"Su archivo se copio de {self.copy_cut_path} a {self.path} correctamente", self.copy_full_path, self.copy_cut_path)
-                else:
-                    self.copy_accion_sig.emit(f"Esto es or que no se guardan las rutas")
-
             except Exception as e:
                 print(f"Error: {e}")
-                self.copy_accion_sig.emit(f"Su archivo no se puedo copio de {self.copy_cut_path} a {self.path} correctamente", self.copy_full_path, self.copy_cut_path)
+                self.copy_accion_sig.emit(f"Su archivo no se puedo copio de {self.copy_cut_path} a {self.path} correctamente")
         else:
             super().keyPressEvent(event)
 
@@ -63,9 +92,8 @@ class FileManager(QMainWindow):
 
         self.init_ui()      
 
-    def _copy_file(self, text, copy_full_path, copy_cut_path):
-        self.copy_full_path = copy_full_path
-        self.copy_cut_path = copy_cut_path
+    def _copy_file(self, text):
+        self.file_view.path = self.path
         self.status.showMessage(text)
 
     def init_ui(self):
@@ -119,7 +147,8 @@ class FileManager(QMainWindow):
         # Vista de archivos en formato grid
         self.file_model = CustomFileSystemModel()
         self.file_model.setRootPath(self.path)
-        self.file_view = Milist_View(self.path, self.copy_full_path, self.copy_cut_path)
+        self.file_view = Milist_View()
+        self.file_view.path = self.path
         self.file_view.setModel(self.file_model)
         self.file_view.setRootIndex(self.file_model.index(self.path))
         self.file_view.setViewMode(QListView.ViewMode.IconMode)
@@ -173,7 +202,7 @@ class FileManager(QMainWindow):
                         self.list_nav.pop(0)
             except Exception:
                 return
-            
+        self.path = new_path
         self.send_dir_finde(self.path)
 
     def on_dir_selected(self, index):
@@ -201,6 +230,7 @@ class FileManager(QMainWindow):
             self.file_view.setRootIndex(self.file_model.setRootPath(dir))
             self.dir_tree.setRootIndex(self.dir_model.index(f"{dir}"))
             self.bar_find.setText(f"{dir}")
+            self.file_view.path = dir
         else:
             self.status.showMessage(f"Direccion ingresada: Invalidad")
             self.bar_find.setText(f"{self.path}")

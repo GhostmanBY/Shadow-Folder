@@ -19,13 +19,6 @@ Gestor de archivos con interfaz gráfica en Python usando PySide6.
    pip install -r Front/GUI/requirements.txt
    ```
 
-## Uso
-
-Ejecuta la aplicación principal:
-```bash
-python Front/GUI/main.py
-```
-
 ## Estructura del proyecto
 - `Front/GUI/main.py`: Archivo principal de la interfaz gráfica
 - `Front/GUI/Utils.py`: Utilidades y modelos personalizados
