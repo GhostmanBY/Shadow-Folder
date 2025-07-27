@@ -1,4 +1,6 @@
-pillow==11.3.0
-PyMuPDF==1.26.3
+pillow
+PyMuPDF
 opencv-python
 pdf2image
+httpx
+PySide6
