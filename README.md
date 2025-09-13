@@ -16,21 +16,21 @@ Gestor de archivos con interfaz gráfica en Python usando PySide6.
    ```
 2. Instala las dependencias:
    ```bash
-   pip install -r Front/GUI/requirements.txt
+   pip install -r requirements.txt
    ```
 
 ## Uso
 
 Ejecuta la aplicación principal:
 ```bash
-python Front/GUI/main.py
+python -m shadow_folder.main
 ```
 
 ## Estructura del proyecto
-- `Front/GUI/main.py`: Archivo principal de la interfaz gráfica
-- `Front/GUI/Utils.py`: Utilidades y modelos personalizados
-- `Front/GUI/requirements.txt`: Dependencias necesarias
-- `Front/GUI/assets/`: Recursos y archivos JSON
+- `shadow_folder/main.py`: Archivo principal de la interfaz gráfica
+- `shadow_folder/Utils.py`: Utilidades y modelos personalizados
+- `requirements.txt`: Dependencias necesarias
+- `assets/`: Recursos y archivos JSON
 
 ## Requisitos
 - Python 3.10+
