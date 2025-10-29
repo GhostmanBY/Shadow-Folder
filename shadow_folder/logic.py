@@ -118,5 +118,5 @@ class LogicHandler:
             new_path = str(Path(self.ui.path) / next_folder)
             self.change_directory(new_path)
 
-if "__name__" == "__main__":
-    print("Esto es una demostracion de commit y funcionamiento de git para Fran")
+if __name__ == "__main__":
+    print("This module is not intended to be run directly. asd")
