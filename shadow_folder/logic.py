@@ -114,3 +114,6 @@ class LogicHandler:
             next_folder = self.ui.list_nav.pop(0)
             new_path = str(Path(self.ui.path) / next_folder)
             self.change_directory(new_path)
+
+if __name__ == "__main__":
+    print("This module is not intended to be run directly.")
