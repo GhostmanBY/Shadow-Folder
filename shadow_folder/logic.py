@@ -4,8 +4,10 @@ from PySide6.QtWidgets import QMessageBox
 
 class LogicHandler:
     def __init__(self, ui, fs_manager):
+        print("[DEBUG] Inicializando LogicHandler")
         self.ui = ui
         self.fs_manager = fs_manager
+        print(f"[DEBUG] LogicHandler inicializado con ui: {ui}, fs_manager: {fs_manager}")
         self.copy_full_path = ""
         self.copy_cut_path = ""
         self.cut_copy = False
@@ -76,6 +78,7 @@ class LogicHandler:
 
     def handle_selection(self, index):
         if not index.isValid():
+            print("[TEST]: ",index)
             return
 
         file_path = (
@@ -114,3 +117,6 @@ class LogicHandler:
             next_folder = self.ui.list_nav.pop(0)
             new_path = str(Path(self.ui.path) / next_folder)
             self.change_directory(new_path)
+
+if "__name__" == "__main__":
+    print("Esto es una demostracion de commit y funcionamiento de git para Fran")
