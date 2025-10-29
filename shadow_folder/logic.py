@@ -116,4 +116,4 @@ class LogicHandler:
             self.change_directory(new_path)
 
 if __name__ == "__main__":
-    print("This module is not intended to be run directly.")
+    print("This module is not intended to be run directly. asd")
