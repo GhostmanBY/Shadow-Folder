@@ -23,16 +23,24 @@ from PySide6.QtCore import Qt, QDir, QSize, Signal, QModelIndex
 class Milist_View(QListView):
     def __init__(self, logic_handler):
         super().__init__()
+        print("[DEBUG] Inicializando Milist_View")
+        print(f"[DEBUG] logic_handler recibido: {logic_handler}")
         self.logic = logic_handler
+        print(f"[DEBUG] self.logic establecido: {self.logic}")
+        # Verificar que los métodos existen
+        print(f"[DEBUG] Métodos disponibles en logic: {dir(self.logic)}")
 
     def keyPressEvent(self, event: QKeyEvent):
+        print(f"[DEBUG] KeyPressEvent - self.logic: {self.logic}")
         if event.key() == Qt.Key.Key_Return:
+            print(f"[DEBUG] Intentando llamar handle_selection")
             self.logic.handle_selection(self.currentIndex())
-
+            
         elif (
             event.key() == Qt.Key.Key_C
             and event.modifiers() & Qt.KeyboardModifier.ControlModifier
         ):
+            print(f"[DEBUG] Intentando llamar copy_item")
             self.logic.copy_item()
 
         elif (
